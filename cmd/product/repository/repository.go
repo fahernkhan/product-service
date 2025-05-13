@@ -10,7 +10,7 @@ type ProductRepository struct {
 	Redis    *redis.Client
 }
 
-func newProductRepository(db *gorm.DB, redis *redis.Client) *ProductRepository {
+func NewProductRepository(db *gorm.DB, redis *redis.Client) *ProductRepository {
 	return &ProductRepository{
 		Database: db,
 		Redis:    redis,
