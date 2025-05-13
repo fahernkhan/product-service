@@ -13,6 +13,9 @@ func (r *ProductRepository) FindProductByID(ctx context.Context, productID int64
 	var product models.Product
 	err := r.Database.WithContext(ctx).Table("product").Where("id = ?", productID).Last(&product).Error
 	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return &models.Product{}, nil
+		}
 		return nil, err
 	}
 
