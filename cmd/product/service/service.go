@@ -55,6 +55,7 @@ func NewProductService(productRepository repository.ProductRepository) *ProductS
 // kita akan tentukan mau menggunakan resource yg mana
 // db or redis
 
+// using redis
 func (s *ProductService) GetProductByID(ctx context.Context, productID int64) (*models.Product, error) {
 	// Get from Redis
 	product, err := s.ProductRepository.GetProductByIDFromRedis(ctx, productID)
