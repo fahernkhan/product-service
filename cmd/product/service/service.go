@@ -191,11 +191,11 @@ func (s *ProductService) DeleteProductCategory(ctx context.Context, productCateg
 //
 // It returns slice of models.Product, int, and nil error when successful.
 // Otherwise, nil value of models.Product slice, empty int, and error will be returned.
-// func (s *ProductService) SearchProduct(ctx context.Context, param models.SearchProductParameter) ([]models.Product, int, error) {
-// 	products, totalCount, err := s.ProductRepository.SearchProduct(ctx, param)
-// 	if err != nil {
-// 		return nil, 0, err
-// 	}
+func (s *ProductService) SearchProduct(ctx context.Context, param models.SearchProductParameter) ([]models.Product, int, error) {
+	products, totalCount, err := s.ProductRepository.SearchProduct(ctx, param)
+	if err != nil {
+		return nil, 0, err
+	}
 
-// 	return products, totalCount, nil
-// }
+	return products, totalCount, nil
+}

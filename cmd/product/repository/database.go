@@ -3,6 +3,7 @@ package repository
 import (
 	"context"
 	"errors"
+	"fmt"
 	"product-service/models"
 
 	"gorm.io/gorm"
@@ -88,4 +89,57 @@ func (r *ProductRepository) DeleteProductCategory(ctx context.Context, productCa
 	}
 
 	return nil
+}
+
+func (r *ProductRepository) SearchProduct(ctx context.Context, param models.SearchProductParameter) ([]models.Product, int, error) {
+	var products []models.Product
+	var totalCount int64
+
+	query := r.Database.WithContext(ctx).Table("product").
+		Select("product.id, product.name, product.description, product.price, product.stock, product.category_id, product_category.name AS category").
+		Joins("JOIN product_category ON product.category_id = product_category.id")
+
+	// filtering
+	if param.Name != "" { // iphone --> iphone X, etc.
+		query = query.Where("product.name ILIKE ?", "%"+param.Name+"%")
+	}
+
+	if param.Category != "" {
+		query = query.Where("product_category.name = ?", param.Category)
+	}
+
+	if param.MinPrice > 0 {
+		query = query.Where("product.price >= ?", param.MinPrice)
+	}
+
+	if param.MaxPrice > 0 {
+		query = query.Where("product.price <= ?", param.MaxPrice)
+	}
+
+	// pagination
+
+	// dapetin total counts dari hasil query
+	query.Model(&models.Product{}).Count(&totalCount)
+
+	// default order by
+	if param.OrderBy == "" {
+		param.OrderBy = "product.name"
+	}
+
+	if param.Sort == "" || (param.Sort != "ASC" && param.Sort != "DESC") {
+		param.Sort = "ASC"
+	}
+
+	orderBy := fmt.Sprintf("%s %s", param.OrderBy, param.Sort)
+	query = query.Order(orderBy)
+
+	offset := (param.Page - 1) * param.PageSize
+	query = query.Limit(param.PageSize).Offset(offset)
+
+	err := query.Scan(&products).Error
+	if err != nil {
+		return nil, 0, err
+	}
+
+	return products, int(totalCount), nil
 }
